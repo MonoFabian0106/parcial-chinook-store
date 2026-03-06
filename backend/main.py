@@ -1,21 +1,28 @@
 from fastapi import FastAPI
-from api.main import api_router
 from fastapi.middleware.cors import CORSMiddleware
 
-# Inicializar tablas si no hay migraciones todavía
+from app.api.main import api_router
+from app.config import settings
 
-app = FastAPI()
+app = FastAPI(title=settings.app_name)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Todos los orígenes (solo para desarrollo)
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
+
 @app.get("/")
-def read_root():
-    return {"message": "Welcome to Parcial Chinook Store API Index Route"}
+def read_root() -> dict[str, str]:
+    return {"message": "Welcome to Parcial Chinook Store API"}
+
+
+@app.get("/health")
+def health() -> dict[str, str]:
+    return {"status": "ok"}
+
 
 app.include_router(api_router, prefix="/api")
