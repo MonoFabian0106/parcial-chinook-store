@@ -1,53 +1,107 @@
-:root {
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
-  color: #111827;
-  background: #f9fafb;
-}
-
 body {
-  margin: 0;
+  
+  background-color: #f4f6f8;
+  font-family: Arial, sans-serif;
+ 
+  
+  color: #050505;
 }
 
 .container {
-  max-width: 900px;
-  margin: 0 auto;
-  padding: 2rem;
+  max-width: 1200px;
+  margin: auto;
+  padding: 30px;
+
+  display: flex;
+  flex-direction: column;
 }
 
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
-  gap: 0.75rem;
+.search-form {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
 }
 
-input,
-select,
-button {
-  padding: 0.65rem;
-  border-radius: 0.5rem;
-  border: 1px solid #d1d5db;
+.search-form input {
+  flex: 1;
+  padding: 8px;
 }
 
-button {
-  background: #2563eb;
+.search-form button {
+  padding: 8px 16px;
+}
+
+.tracks-container {
+  display: flex;
+  gap: 30px;
+  margin-top: 20px;
+  align-items: flex-start;
+}
+
+.results {
+  flex: 1;
+}
+
+.selected {
+  flex: 1;
+  border-left: 2px solid #ddd;
+  padding-left: 20px;
+}
+
+.track-list {
+  list-style: none;
+  padding: 0;
+  height: 100%;
+  max-height: 100%;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  background: white;
+}
+
+/* estado normal */
+.track-list li {
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: black; /* texto negro */
+}
+
+/* cuando pasas el mouse */
+.track-list li:hover {
+  background-color: #007bff;
+  color: white;
+}
+
+.selected-list {
+  list-style: none;
+  padding: 0;
+  height: 100%;
+  max-height: 100%;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  background: white;
+}
+
+.selected-list li {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px;
+  border-bottom: 1px solid #ddd;
+  color: black;
+}
+
+.remove-btn {
+  background: red;
+  border: none;
   color: white;
   cursor: pointer;
 }
 
-.alert {
-  padding: 0.75rem;
-  border-radius: 0.5rem;
-  margin: 1rem 0;
-}
-
-.alert.success {
-  background: #dcfce7;
-}
-
-.alert.error {
-  background: #fee2e2;
-}
-
-ul {
-  padding-left: 1.2rem;
+.buy-btn {
+  margin-top: 15px;
+  padding: 10px;
+  background: green;
+  color: white;
+  border: none;
 }

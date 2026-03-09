@@ -8,10 +8,18 @@ export async function fetchCustomers() {
 }
 
 export async function searchTracks(params = {}) {
-  const query = new URLSearchParams(params)
-  const response = await fetch(`${API_BASE_URL}/store/tracks/search?${query.toString()}`)
-  if (!response.ok) throw new Error('No se pudo buscar canciones')
-  return response.json()
+  // Filtrar solo los parámetros que tienen valor
+  const filteredParams = Object.fromEntries(
+    Object.entries(params).filter(([key, value]) => value && value.length > 0)
+  );
+
+  const query = new URLSearchParams(filteredParams);
+
+  const response = await fetch(`${API_BASE_URL}/store/tracks/search?${query.toString()}`);
+  
+  if (!response.ok) throw new Error('No se pudo buscar canciones');
+  
+  return response.json();
 }
 
 export async function createPurchase(payload) {
