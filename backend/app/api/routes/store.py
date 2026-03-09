@@ -24,13 +24,13 @@ def list_customers(
 
 @router.get("/tracks/search", response_model=list[TrackSearchResponse])
 def search_tracks(
-    q: str | None = Query(default=None, min_length=1),
-    artist: str | None = Query(default=None, min_length=1),
-    genre: str | None = Query(default=None, min_length=1),
+    q: str | None = Query(default=None),
+    artist: str | None = Query(default=None),
+    genre: str | None = Query(default=None),
     limit: int = Query(default=25, ge=1, le=100),
     service: StoreService = Depends(get_store_service),
 ):
-    return service.search_tracks(q, artist, genre, limit)
+    return service.search_tracks(query_value=q, artist=artist, genre=genre, limit=limit)
 
 
 @router.post("/purchases", response_model=PurchaseResponse)
