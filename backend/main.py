@@ -14,15 +14,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
 @app.get("/")
 def read_root() -> dict[str, str]:
     return {"message": "Welcome to Parcial Chinook Store API"}
 
-
 @app.get("/health")
 def health() -> dict[str, str]:
     return {"status": "ok"}
-
 
 app.include_router(api_router, prefix="/api")

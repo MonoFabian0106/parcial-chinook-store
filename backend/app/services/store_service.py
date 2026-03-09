@@ -13,6 +13,7 @@ class StoreService:
         self.db = db
 
     def list_customers(self, limit: int = 25) -> list[dict]:
+        # Ajustado a la tabla "customer" (si la borraste también, cámbiala por la nueva)
         query = text(
             """
             SELECT customer_id, first_name, last_name, email
@@ -62,74 +63,48 @@ class StoreService:
         return [dict(row) for row in rows]
 
     def purchase_song(self, payload: PurchaseRequest) -> dict:
-        customer = self.db.execute(
-            text("SELECT customer_id FROM customer WHERE customer_id = :customer_id"),
-            {"customer_id": payload.customer_id},
-        ).scalar_one_or_none()
-        if not customer:
-            raise HTTPException(status_code=404, detail="Cliente no encontrado")
+        # 1. Verificar que los tracks existen y obtener su precio total
+        tracks_query = text("SELECT track_id, unit_price FROM track WHERE track_id IN :track_ids")
+        tracks_rows = self.db.execute(
+            tracks_query, 
+            {"track_ids": tuple(payload.track_ids)}
+        ).mappings().all()
 
-        track = self.db.execute(
-            text("SELECT track_id, unit_price FROM track WHERE track_id = :track_id"),
-            {"track_id": payload.track_id},
-        ).mappings().one_or_none()
-        if not track:
-            raise HTTPException(status_code=404, detail="Canción no encontrada")
+        if not tracks_rows:
+            raise HTTPException(status_code=404, detail="No se encontraron las canciones")
 
-        unit_price = Decimal(str(track["unit_price"]))
-        total = (unit_price * payload.quantity).quantize(Decimal("0.01"))
+        # Calculamos el total para devolverlo al frontend (aunque no esté en tu tabla purchase)
+        total_acumulado = sum(Decimal(str(row["unit_price"])) for row in tracks_rows)
+        total_acumulado = (total_acumulado * payload.quantity).quantize(Decimal("0.01"))
 
-        invoice_id = (
-            self.db.execute(text("SELECT COALESCE(MAX(invoice_id), 0) + 1 FROM invoice")).scalar_one()
-        )
-        invoice_line_id = (
-            self.db.execute(text("SELECT COALESCE(MAX(invoice_line_id), 0) + 1 FROM invoice_line")).scalar_one()
-        )
+        # 2. Obtener el siguiente purchase_id
+        # Como no hay autoincremento automático en este script, buscamos el máximo
+        next_id = self.db.execute(text("SELECT COALESCE(MAX(purchase_id), 0) FROM purchase")).scalar_one()
 
-        self.db.execute(
-            text(
-                """
-                INSERT INTO invoice (
-                    invoice_id, customer_id, invoice_date, billing_address,
-                    billing_city, billing_country, billing_postal_code, total
-                ) VALUES (
-                    :invoice_id, :customer_id, :invoice_date, :billing_address,
-                    :billing_city, :billing_country, :billing_postal_code, :total
-                );
-                """
-            ),
-            {
-                "invoice_id": invoice_id,
-                "customer_id": payload.customer_id,
-                "invoice_date": datetime.now(timezone.utc),
-                "billing_address": payload.billing_address,
-                "billing_city": payload.billing_city,
-                "billing_country": payload.billing_country,
-                "billing_postal_code": payload.billing_postal_code,
-                "total": total,
-            },
-        )
-
-        self.db.execute(
-            text(
-                """
-                INSERT INTO invoice_line (invoice_line_id, invoice_id, track_id, unit_price, quantity)
-                VALUES (:invoice_line_id, :invoice_id, :track_id, :unit_price, :quantity);
-                """
-            ),
-            {
-                "invoice_line_id": invoice_line_id,
-                "invoice_id": invoice_id,
-                "track_id": payload.track_id,
-                "unit_price": unit_price,
-                "quantity": payload.quantity,
-            },
-        )
+        # 3. Insertar cada canción en la nueva tabla "purchase"
+        # Según tu diseño: purchase_id, customer_id, track_id, purchase_date
+        for row in tracks_rows:
+            next_id += 1
+            self.db.execute(
+                text(
+                    """
+                    INSERT INTO purchase (purchase_id, customer_id, track_id, purchase_date)
+                    VALUES (:p_id, :c_id, :t_id, :p_date);
+                    """
+                ),
+                {
+                    "p_id": next_id,
+                    "c_id": payload.customer_id,
+                    "t_id": row["track_id"],
+                    "p_date": datetime.now(timezone.utc)
+                },
+            )
 
         self.db.commit()
+        
         return {
-            "invoice_id": invoice_id,
-            "invoice_line_id": invoice_line_id,
-            "total": total,
-            "message": "Compra registrada con éxito",
+            "invoice_id": next_id, # Usamos el último purchase_id para no romper el esquema PurchaseResponse
+            "invoice_line_id": None,
+            "total": total_acumulado,
+            "message": f"Se registraron {len(tracks_rows)} canciones en la tabla purchase.",
         }
