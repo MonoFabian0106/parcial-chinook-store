@@ -38,44 +38,31 @@ jobs:
       - name: Run frontend unit tests
         run: npm run test
 
-  deploy:
+  deploy-backend:
     needs: [backend-tests, frontend-tests]
     if: github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, backend-ec2]
     steps:
       - uses: actions/checkout@v4
-
-      - name: Deploy backend to EC2
-        uses: appleboy/ssh-action@v1.2.0
-        with:
-          host: ${{ secrets.BACKEND_EC2_HOST }}
-          username: ${{ secrets.BACKEND_EC2_USER }}
-          key: ${{ secrets.BACKEND_EC2_SSH_KEY }}
-          script: |
-            set -e
-            cd /opt/parcial-chinook-store
-            git pull origin main
-            cd backend
-            pip install -r requirements.txt
-            sudo systemctl restart chinook-backend
-
-      - name: Build frontend
+      - name: Deploy backend
         run: |
+          cd /opt/parcial-chinook-store
+          git pull origin main
+          cd backend
+          pip install -r requirements.txt
+          sudo systemctl restart chinook-backend
+
+  deploy-frontend:
+    needs: [backend-tests, frontend-tests]
+    if: github.ref == 'refs/heads/main'
+    runs-on: [self-hosted, frontend-ec2]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Deploy frontend
+        run: |
+          cd /opt/parcial-chinook-store
+          git pull origin main
           cd frontend
           npm ci
           npm run build
-
-      - name: Deploy frontend to EC2
-        uses: appleboy/ssh-action@v1.2.0
-        with:
-          host: ${{ secrets.FRONTEND_EC2_HOST }}
-          username: ${{ secrets.FRONTEND_EC2_USER }}
-          key: ${{ secrets.FRONTEND_EC2_SSH_KEY }}
-          script: |
-            set -e
-            cd /opt/parcial-chinook-store
-            git pull origin main
-            cd frontend
-            npm ci
-            npm run build
-            sudo systemctl restart chinook-frontend
+          sudo systemctl restart chinook-frontend
