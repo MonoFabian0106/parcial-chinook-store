@@ -49,8 +49,10 @@ jobs:
           cd ~/environment/parcial-chinook-store
           git pull origin main
           cd backend
+          source .venv/bin/activate
           pip install -r requirements.txt
-          sudo systemctl restart chinook-backend
+          pkill -f "uvicorn main:app" || true
+          nohup uvicorn main:app --host 0.0.0.0 --port 8000 > uvicorn.log 2>&1 &
 
   deploy-frontend:
     needs: [backend-tests, frontend-tests]
