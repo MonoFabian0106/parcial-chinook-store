@@ -147,6 +147,15 @@ CREATE TABLE track
     CONSTRAINT track_pkey PRIMARY KEY  (track_id)
 );
 
+CREATE TABLE purchase
+(
+    purchase_id INT NOT NULL,
+    customer_id INT NOT NULL,
+    track_id INT NOT NULL,
+    purchase_date TIMESTAMP NOT NULL,
+    CONSTRAINT purchase_pkey PRIMARY KEY (purchase_id)
+);
+
 
 
 /*******************************************************************************
@@ -210,6 +219,16 @@ ALTER TABLE track ADD CONSTRAINT track_media_type_id_fkey
     FOREIGN KEY (media_type_id) REFERENCES media_type (media_type_id) ON DELETE NO ACTION ON UPDATE NO ACTION;
 
 CREATE INDEX track_media_type_id_idx ON track (media_type_id);
+
+ALTER TABLE purchase ADD CONSTRAINT purchase_customer_id_fkey
+    FOREIGN KEY (customer_id) REFERENCES customer (customer_id) ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+CREATE INDEX purchase_customer_id_idx ON purchase (customer_id);
+
+ALTER TABLE purchase ADD CONSTRAINT purchase_track_id_fkey
+    FOREIGN KEY (track_id) REFERENCES track (track_id) ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+CREATE INDEX purchase_track_id_idx ON purchase (track_id);
 
 
 /*******************************************************************************

@@ -1,23 +1,32 @@
-import { useEffect, useState } from 'react'
+import { useState, useEffect } from 'react'
 import './App.css'
 
 import TrackSearch from './components/TrackSearch'
 
-import { fetchCustomers, searchTracks } from './services/api'
+import { searchTracks, fetchCustomers } from './services/api'
 
 function App() {
 
   const [tracks, setTracks] = useState([])
+  const [customers, setCustomers] = useState([])
   const [filters, setFilters] = useState({ q: '', artist: '', genre: '' })
   const [alert, setAlert] = useState({ type: '', message: '' })
+  const [isLoading, setIsLoading] = useState(false)
+
+  // Cargar clientes al inicio
+  useEffect(() => {
+    fetchCustomers()
+      .then(setCustomers)
+      .catch(err => console.error('Error cargando clientes:', err))
+  }, [])
 
   const onSearch = async (event) => {
     event.preventDefault()
+    setIsLoading(true)
+    setAlert({ type: '', message: '' })
 
     try {
-
       const data = await searchTracks(filters)
-
       setTracks(data)
 
       setAlert({
@@ -26,12 +35,12 @@ function App() {
       })
 
     } catch (error) {
-
       setAlert({
         type: 'error',
         message: error.message
       })
-
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -51,6 +60,8 @@ function App() {
         setFilters={setFilters}
         tracks={tracks}
         onSearch={onSearch}
+        isLoading={isLoading}
+        customers={customers}
       />
 
     </main>
