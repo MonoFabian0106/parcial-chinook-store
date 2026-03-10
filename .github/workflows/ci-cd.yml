@@ -57,7 +57,7 @@ jobs:
   deploy-frontend:
     needs: [backend-tests, frontend-tests]
     if: github.ref == 'refs/heads/main'
-    runs-on: [self-hosted, frontend-ec2]
+    runs-on: [self-hosted, linux, x64, deploy-frontend]
     steps:
       - uses: actions/checkout@v4
       - name: Deploy frontend
