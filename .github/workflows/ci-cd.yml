@@ -46,7 +46,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Deploy backend
         run: |
-          cd /opt/parcial-chinook-store
+          cd ~/environment/parcial-chinook-store
           git pull origin main
           cd backend
           pip install -r requirements.txt
