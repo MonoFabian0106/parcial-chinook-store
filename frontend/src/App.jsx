@@ -47,7 +47,7 @@ function App() {
   return (
     <main className="container">
 
-      <h1>Chinook Tienda </h1>
+      <h1>Chinook Tienda</h1>
 
       {alert.message && (
         <div className={`alert ${alert.type}`}>
