@@ -20,7 +20,7 @@ describe('App Component', () => {
 
   it('renderiza el título de la aplicación', async () => {
     render(<App />)
-    expect(screen.getByText('Chinook Store')).toBeInTheDocument()
+    expect(screen.getByText('Chinook Tienda')).toBeInTheDocument()
   })
 
   it('renderiza el componente TrackSearch', async () => {
