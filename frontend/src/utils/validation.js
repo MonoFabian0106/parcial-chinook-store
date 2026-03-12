@@ -7,7 +7,7 @@ export function isPurchaseFormValid(form) {
 
   // customer_id: int > 0
   if (!form.customer_id || form.customer_id <= 0) {
-    errors.push('Debe seleccionar un cliente')
+    errors.push('Debe seleccionar un cliente xxxx')
   }
 
   // track_ids: list con al menos 1 elemento
