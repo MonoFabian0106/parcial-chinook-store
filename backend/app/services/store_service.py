@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
 from decimal import Decimal
-
+from typing import Optional
 from fastapi import HTTPException
 from sqlalchemy import text
 from sqlalchemy.orm import Session
@@ -27,9 +27,9 @@ class StoreService:
 
     def search_tracks(
         self,
-        query_value: str | None = None,
-        artist: str | None = None,
-        genre: str | None = None,
+        query_value: Optional[str] = None,
+        artist: Optional[str] = None,
+        genre: Optional[str] = None,
         limit: int = 25,
     ) -> list[dict]:
         query = text(

@@ -1,5 +1,5 @@
 from typing import Annotated
-
+from typing import Optional
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 
@@ -24,9 +24,9 @@ def list_customers(
 
 @router.get("/tracks/search", response_model=list[TrackSearchResponse])
 def search_tracks(
-    q: str | None = Query(default=None),
-    artist: str | None = Query(default=None),
-    genre: str | None = Query(default=None),
+    q: Optional[str] = Query(default=None),
+    artist: Optional[str] = Query(default=None),
+    genre: Optional[str] = Query(default=None),
     limit: int = Query(default=25, ge=1, le=100),
     service: StoreService = Depends(get_store_service),
 ):
