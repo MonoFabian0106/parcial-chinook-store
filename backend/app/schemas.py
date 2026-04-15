@@ -1,7 +1,6 @@
 from decimal import Decimal
-from pydantic import BaseModel, ConfigDict, Field, conlist
+from pydantic import BaseModel, Field, conlist
 from typing import Optional
-
 
 class TrackSearchResponse(BaseModel):
     track_id: int
@@ -12,19 +11,18 @@ class TrackSearchResponse(BaseModel):
 
 class PurchaseRequest(BaseModel):
     customer_id: int = Field(gt=0)
-    # Cambiado a lista para soportar múltiples canciones
-    track_ids: conlist(int, min_items=1) 
+    track_ids: conlist(int, min_items=1)
     quantity: int = Field(default=1, gt=0)
-    # Valores por defecto para evitar el error 422 si el frontend no los manda
     billing_address: str = Field(default="Calle Falsa 123", min_length=3, max_length=70)
     billing_city: str = Field(default="Ciudad", min_length=2, max_length=40)
     billing_country: str = Field(default="Pais", min_length=2, max_length=40)
     billing_postal_code: str = Field(default="12345", min_length=3, max_length=10)
 
 class PurchaseResponse(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
+    class Config:
+        orm_mode = True
     invoice_id: int
-    invoice_line_id: Optional[int] = None # Opcional por si son varios tracks
+    invoice_line_id: Optional[int] = None
     total: Decimal
     message: str
 
